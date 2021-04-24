@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 public class UIUtils {
     public static final Font FONT_GENERAL_UI = new Font("Segoe UI", Font.PLAIN, 20);
+    public static final Font FONT_SMALL_UI = new Font("Segoe UI", Font.PLAIN, 16);
+
     public static final Font FONT_FORGOT_PASSWORD = new Font("Segoe UI", Font.PLAIN, 12);
 
     public static final Color COLOR_OUTLINE = new Color(103, 112, 120);
@@ -14,8 +16,15 @@ public class UIUtils {
     public static final Color OFFWHITE = new Color(229, 229, 229);
 
     public static final String BUTTON_TEXT_LOGIN = "Login";
+    public static final String BUTTON_TEXT_CLIENT = "Client";
+    public static final String BUTTON_TEXT_CHOOSEFILE = "Choose File";
+    public static final String BUTTON_TEXT_SENDFILE = "Send File";
+    public static final String BUTTON_TEXT_SERVER = "Server";
+    public static final String BUTTON_TEXT_SERVEROPT = "Mult-Client Server";
+    public static final String BUTTON_TEXT_SEND_FILE = "Send File to Client";
     public static final String BUTTON_TEXT_FORGOT_PASS = "Forgot your password?";
     public static final String BUTTON_TEXT_REGISTER = "Register";
+    public static final String BUTTON_TEXT_QUIT = "Quit";
 
     public static final String PLACEHOLDER_TEXT_USERNAME = "Username/email";
 

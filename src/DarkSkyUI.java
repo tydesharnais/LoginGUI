@@ -1,27 +1,33 @@
 import Toaster.Toaster;
 import Utils.*;
+import chat.Server;
 
-
+import chat.chat_server;
+import chat.chat_client;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import javax.swing.*;
 
-public class LoginUI extends JFrame {
+public class DarkSkyUI extends JFrame {
 
     private final Toaster toaster;
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JLabel loginButton;
+    private JLabel serverButton;
+    private JLabel clientButton;
     private static int passCount = 0;
 
     public static void main(String[] args) {
-        new LoginUI();
+        new DarkSkyUI();
     }
 
-    private LoginUI() {
+    DarkSkyUI() {
         JPanel mainJPanel = getMainJPanel();
 
         addLogo(mainJPanel);
@@ -30,20 +36,14 @@ public class LoginUI extends JFrame {
 
         usernameField = createUsernameTextField();
 
-        passwordField = createPasswordTextField();
-
-        loginButton =  createLoginButton();
-
-        addForgotPasswordButton(mainJPanel);
-
-        addRegisterButton(mainJPanel);
+        clientButton = createClientButton(mainJPanel);
+        serverButton =  createServerButton(mainJPanel);
 
         JLabel quitButton = createQuitButton();
 
         mainJPanel.add(quitButton);
-        mainJPanel.add(passwordField);
-        mainJPanel.add(usernameField);
-        mainJPanel.add(loginButton);
+        mainJPanel.add(clientButton);
+        mainJPanel.add(serverButton);
 
         this.setTitle("DarkSky");
         this.add(mainJPanel);
@@ -58,6 +58,7 @@ public class LoginUI extends JFrame {
         setLocation(screenSize.width / 2 - getWidth() / 2, screenSize.height / 2 - getHeight() / 2);
 
         toaster = new Toaster(mainJPanel);
+        toaster.success("Login Successful");
 
     }
 
@@ -145,49 +146,15 @@ public class LoginUI extends JFrame {
             }
         });
 
-       return usernameField;
+        return usernameField;
     }
 
-    private JPasswordField createPasswordTextField() {
-        TextFieldPassword passwordField = new TextFieldPassword();
-
-        passwordField.setBounds(423, 168, 250, 44);
-        passwordField.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                passwordField.setForeground(Color.white);
-                passwordField.setBorderColor(UIUtils.COLOR_INTERACTIVE);
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                passwordField.setForeground(UIUtils.COLOR_OUTLINE);
-                passwordField.setBorderColor(UIUtils.COLOR_OUTLINE);
-            }
-        });
-
-        passwordField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                if (e.getKeyChar() == KeyEvent.VK_ENTER) {
-                    try {
-                        loginEventHandler(usernameField,passwordField);
-                    } catch (InterruptedException interruptedException) {
-                        interruptedException.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        return passwordField;
 
 
-    }
-
-    private JLabel createLoginButton() {
+    private JLabel createServerButton(JPanel mainJPanel) {
         final Color[] loginButtonColors = {UIUtils.COLOR_INTERACTIVE, Color.white};
 
-        JLabel loginButton = new JLabel() {
+        JLabel serverButton = new JLabel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = UIUtils.get2dGraphics(g);
@@ -204,41 +171,106 @@ public class LoginUI extends JFrame {
                 int y2 = ((getHeight() - metrics.getHeight()) / 2) + metrics.getAscent();
                 g2.setFont(UIUtils.FONT_GENERAL_UI);
                 g2.setColor(loginButtonColors[1]);
-                g2.drawString(UIUtils.BUTTON_TEXT_LOGIN, x2, y2);
+                g2.drawString(UIUtils.BUTTON_TEXT_SERVER, x2, y2);
             }
         };
 
-        loginButton.addMouseListener(new MouseAdapter() {
+        serverButton.addMouseListener(new MouseAdapter() {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                try {
-                    loginEventHandler(usernameField,passwordField);
-                } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
-                }
+                toaster.success("Server selected");
+                ServerUI server = new ServerUI();
+
+               // }
+              //  if(a==JOptionPane.NO_OPTION){
+
+               //     String port=JOptionPane.showInputDialog(mainJPanel,"Enter Port number");
+                //    chat_server myServer=new chat_server();
+                //    myServer.startRunning();
+             //   }
+
             }
 
             @Override
             public void mouseEntered(MouseEvent e) {
                 loginButtonColors[0] = UIUtils.COLOR_INTERACTIVE_DARKER;
                 loginButtonColors[1] = UIUtils.OFFWHITE;
-                loginButton.repaint();
+                serverButton.repaint();
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 loginButtonColors[0] = UIUtils.COLOR_INTERACTIVE;
                 loginButtonColors[1] = Color.white;
-                loginButton.repaint();
+                serverButton.repaint();
             }
         });
 
-        loginButton.setBackground(UIUtils.COLOR_BACKGROUND);
-        loginButton.setBounds(423, 247, 250, 44);
-        loginButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-         return loginButton;
+        serverButton.setBackground(UIUtils.COLOR_BACKGROUND);
+        serverButton.setBounds(423, 109, 250, 44);
+        serverButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        return serverButton;
     }
+
+    private JLabel createClientButton(JPanel mainJPanel) {
+        final Color[] loginButtonColors = {UIUtils.COLOR_INTERACTIVE, Color.white};
+
+        JLabel clientButton = new JLabel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = UIUtils.get2dGraphics(g);
+                super.paintComponent(g2);
+
+                Insets insets = getInsets();
+                int w = getWidth() - insets.left - insets.right;
+                int h = getHeight() - insets.top - insets.bottom;
+                g2.setColor(loginButtonColors[0]);
+                g2.fillRoundRect(insets.left, insets.top, w, h, UIUtils.ROUNDNESS, UIUtils.ROUNDNESS);
+
+                FontMetrics metrics = g2.getFontMetrics(UIUtils.FONT_GENERAL_UI);
+                int x2 = (getWidth() - metrics.stringWidth(UIUtils.BUTTON_TEXT_LOGIN)) / 2;
+                int y2 = ((getHeight() - metrics.getHeight()) / 2) + metrics.getAscent();
+                g2.setFont(UIUtils.FONT_GENERAL_UI);
+                g2.setColor(loginButtonColors[1]);
+                g2.drawString(UIUtils.BUTTON_TEXT_CLIENT, x2, y2);
+            }
+        };
+
+        clientButton.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                toaster.success("Client Selected");
+                System.out.println("CLient");
+                String ipAddr=JOptionPane.showInputDialog(mainJPanel,"Enter IP Address");
+                String port=JOptionPane.showInputDialog(mainJPanel,"Enter Port number");
+                chat_client client = new chat_client(ipAddr);
+               // chat_client client =new chat_client(ipAddr, Integer.parseInt(port));
+                client.startRunning();
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                loginButtonColors[0] = UIUtils.COLOR_INTERACTIVE_DARKER;
+                loginButtonColors[1] = UIUtils.OFFWHITE;
+                clientButton.repaint();
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                loginButtonColors[0] = UIUtils.COLOR_INTERACTIVE;
+                loginButtonColors[1] = Color.white;
+                clientButton.repaint();
+            }
+        });
+
+        clientButton.setBackground(UIUtils.COLOR_BACKGROUND);
+        clientButton.setBounds(423, 200, 250, 44);
+        clientButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        return clientButton;
+    }
+
     private JLabel createQuitButton() {
         final Color[] loginButtonColors = {UIUtils.COLOR_INTERACTIVE, Color.white};
 
@@ -293,52 +325,5 @@ public class LoginUI extends JFrame {
 
         return quitButton;
 
-    }
-
-    private void addForgotPasswordButton(JPanel panel1) {
-        panel1.add(new HyperlinkText(UIUtils.BUTTON_TEXT_FORGOT_PASS, 423, 300, () -> {
-            toaster.error("Forgot password event");
-        }));
-    }
-
-
-    private void addRegisterButton(JPanel panel1) {
-        panel1.add(new HyperlinkText(UIUtils.BUTTON_TEXT_REGISTER, 631, 300, () -> {
-            toaster.success("Register event");
-        }));
-    }
-
-    private boolean checkIfCorrect(char [] input){
-        boolean isCorrect = false;
-        char[] correctPass = {'D','A','R','K','S','K','E','Y','E'};
-        if(input.length != correctPass.length){
-            isCorrect = false;
-        } else {
-            isCorrect = Arrays.equals(input,correctPass);
-        }
-        Arrays.fill(correctPass, '0');
-        return isCorrect;
-    }
-
-    private void loginEventHandler(JTextField usernameField, JPasswordField passwordField) throws InterruptedException {
-        char[] input = passwordField.getPassword();
-        String username = usernameField.getText();
-        if(checkIfCorrect(input)){
-            toaster.success("Password is correct. Welcome",username);
-            getMainFrame();
-
-        }
-        else if(passCount < 5){
-            toaster.error("Password is Incorrect try again");
-            passCount++;
-        }
-        else{
-            toaster.error("You have reached the maximum attempts.");
-            toaster.error("Your IP ADDRESS has been logged and recorded");
-            System.exit(0);
-        }
-    }
-    private void getMainFrame() throws InterruptedException {
-        DarkSkyUI darksky = new DarkSkyUI();
     }
 }

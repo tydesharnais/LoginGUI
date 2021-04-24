@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
 public class Toaster {
     private static final int STARTING_Y_POS = 15;
     private static final int SPACER_DISTANCE = 15;
